@@ -22,6 +22,8 @@ async function bootstrap() {
     new RpcCustomExceptionFilter()
   )
 
+  // app.useGlobalInterceptors(new RpcExceptionInterceptor());
+
   await app.listen( envs.port );
 
   loggerr.log(`Getway running on port: ${ envs.port }`);

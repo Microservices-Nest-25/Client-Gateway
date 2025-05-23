@@ -9,23 +9,29 @@ import { PaginationDto } from 'src/common';
 export class OrdersController {
   constructor(
     @Inject(NATS_SERVICE) private readonly natsClient: ClientProxy
-  ) {}
+  ) { }
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
-    return this.natsClient.send('createOrder', createOrderDto);
+    return this.natsClient.send('createOrder', createOrderDto)
+      .pipe(
+        catchError((error) => { throw new RpcException(error) })
+      );
   }
 
   @Get()
   findAll(
     @Query() orderPaginationDto: OrderPaginationDto,
   ) {
-    return this.natsClient.send('findAllOrders', orderPaginationDto);
+    return this.natsClient.send('findAllOrders', orderPaginationDto)
+      .pipe(
+        catchError((error) => { throw new RpcException(error) })
+      );
   }
 
   @Get('id/:id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.natsClient.send('findOneOrder', { id } )
+    return this.natsClient.send('findOneOrder', { id })
       .pipe(
         catchError((error) => { throw new RpcException(error) })
       );
@@ -39,7 +45,9 @@ export class OrdersController {
     return this.natsClient.send('findAllOrders', {
       ...paginationDto,
       status: statusDto.status,
-    });
+    }).pipe(
+      catchError((error) => { throw new RpcException(error) })
+    );
   }
 
   @Patch(':id')
@@ -50,8 +58,7 @@ export class OrdersController {
     return this.natsClient.send('changeOrderStatus', {
       id,
       status: statusDto.status,
-    })
-    .pipe(
+    }).pipe(
       catchError((error) => { throw new RpcException(error) })
     );
   }
